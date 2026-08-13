@@ -2,11 +2,12 @@
   "name": "noticiatodahora-monorepo",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "workspaces": [
     "apps/*"
   ],
   "scripts": {
-    "build": "npm run build:backend && npm run build:frontend",
+    "build": "npm run build:backend && npm run build:frontend && node scripts/copy-build.js",
     "dev:backend": "npm run dev --workspace=apps/backend",
     "dev:frontend": "npm run start --workspace=apps/frontend",
     "build:backend": "npm run build --workspace=apps/backend",
