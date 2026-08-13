@@ -4,7 +4,7 @@
   "private": true,
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "node ../../scripts/build-all.js",
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts"
   },
