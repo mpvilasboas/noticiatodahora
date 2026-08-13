@@ -1,0 +1,11 @@
+<app-header></app-header>
+
+<main class="main-content">
+  <ng-container *ngIf="authService.currentUser(); else loginView">
+    <app-report-form></app-report-form>
+  </ng-container>
+
+  <ng-template #loginView>
+    <app-login></app-login>
+  </ng-template>
+</main>
