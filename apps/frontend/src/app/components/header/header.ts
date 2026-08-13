@@ -11,10 +11,10 @@ import { OfflineQueueService } from '../../services/offline-queue.service';
   template: `
     <header class="app-header">
       <div class="logo-container">
-        <span class="logo-icon">📻</span>
+        <div class="brand-mark">NT</div>
         <div class="logo-text">
-          <h1>Notícia toda hora</h1>
-          <span class="subhead">Jornalismo de Campo MVP</span>
+          <h1>NOTÍCIA TODA HORA</h1>
+          <span class="subhead">Jornalismo de Campo</span>
         </div>
       </div>
 
@@ -27,13 +27,16 @@ import { OfflineQueueService } from '../../services/offline-queue.service';
 
         <!-- Queue Counter badge -->
         <span *ngIf="offlineQueue.pendingCount() > 0" class="badge badge-queue" (click)="offlineQueue.triggerAutoSync()">
-          <span class="spin-icon" *ngIf="offlineQueue.isSyncing()">⏳</span>
-          📥 {{ offlineQueue.pendingCount() }} pendente(s)
+          {{ offlineQueue.pendingCount() }} na fila
         </span>
 
         <!-- User / Email Config button -->
         <button class="user-btn" (click)="openConfigModal()" title="Configurar e-mail de envio">
-          👤 {{ authService.currentUser()?.name || 'Jornalista' }}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span>{{ authService.currentUser()?.name || 'Repórter' }}</span>
         </button>
       </div>
 
@@ -41,35 +44,35 @@ import { OfflineQueueService } from '../../services/offline-queue.service';
       <div *ngIf="showConfigModal()" class="modal-backdrop" (click)="closeConfigModal()">
         <div class="modal-card" (click)="$event.stopPropagation()">
           <div class="modal-header">
-            <h3>⚙️ Configurações do Jornalista</h3>
+            <h3>Configurações do Repórter</h3>
             <button class="btn-close" (click)="closeConfigModal()">✕</button>
           </div>
 
           <div class="modal-body">
             <label class="input-label">
-              📧 E-mail de Envio (Notícias & Rádio):
+              E-mail de Destino das Matérias
             </label>
             <input 
               type="email" 
               class="email-input" 
               [(ngModel)]="tempEmail" 
-              placeholder="Digite o e-mail de destino..."
+              placeholder="seu-email@portal.com.br"
             />
             <p class="input-help">
-              As matérias do site e os roteiros para rádio serão entregues neste e-mail a cada envio.
+              As matérias geradas para o portal e rádio serão entregues neste endereço.
             </p>
 
             <div class="saved-alert" *ngIf="savedSuccess()">
-              ✅ E-mail salvo com sucesso!
+              ✓ E-mail salvo com sucesso
             </div>
           </div>
 
           <div class="modal-actions">
             <button type="button" class="btn-save" (click)="saveEmail()">
-              💾 Salvar E-mail
+              Salvar Alterações
             </button>
             <button type="button" class="btn-logout" (click)="logout()">
-              🚪 Sair da conta
+              Sair
             </button>
           </div>
         </div>
@@ -81,10 +84,10 @@ import { OfflineQueueService } from '../../services/offline-queue.service';
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 14px;
-      background-color: #0f172a;
+      padding: 12px 18px;
+      background-color: #09090b;
       color: #ffffff;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      border-bottom: 1px solid #18181b;
       position: sticky;
       top: 0;
       z-index: 100;
@@ -93,63 +96,72 @@ import { OfflineQueueService } from '../../services/offline-queue.service';
     .logo-container {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
 
-    .logo-icon {
-      font-size: 22px;
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      background-color: #ffffff;
+      color: #09090b;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      letter-spacing: -0.5px;
     }
 
     .logo-text h1 {
-      font-size: 15px;
+      font-size: 12px;
       font-weight: 700;
       margin: 0;
       line-height: 1.1;
-      color: #38bdf8;
-      letter-spacing: -0.3px;
+      color: #ffffff;
+      letter-spacing: 0.05em;
     }
 
     .logo-text .subhead {
       font-size: 9px;
-      color: #94a3b8;
+      color: #71717a;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.05em;
     }
 
     .status-bar {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
 
     .badge {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 4px 8px;
+      gap: 6px;
+      padding: 4px 10px;
       border-radius: 12px;
       font-size: 10px;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.05em;
     }
 
     .badge-online {
-      background-color: #064e3b;
-      color: #34d399;
-      border: 1px solid #10b981;
+      background-color: #091f15;
+      color: #4ade80;
+      border: 1px solid #166534;
     }
 
     .badge-offline {
-      background-color: #7f1d1d;
+      background-color: #2a0c10;
       color: #fca5a5;
-      border: 1px solid #ef4444;
+      border: 1px solid #991b1b;
     }
 
     .badge-queue {
-      background-color: #78350f;
+      background-color: #271a0c;
       color: #fde047;
-      border: 1px solid #f59e0b;
+      border: 1px solid #b45309;
       cursor: pointer;
     }
 
@@ -161,19 +173,23 @@ import { OfflineQueueService } from '../../services/offline-queue.service';
     }
 
     .user-btn {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.25);
-      color: #f8fafc;
-      padding: 5px 10px;
-      border-radius: 16px;
-      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #18181b;
+      border: 1px solid #27272a;
+      color: #e4e4e7;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
       cursor: pointer;
-      font-weight: 600;
-      transition: background 0.2s;
+      font-weight: 500;
+      transition: background 0.15s, border-color 0.15s;
     }
 
     .user-btn:hover {
-      background: rgba(255,255,255,0.25);
+      background: #27272a;
+      border-color: #3f3f46;
     }
 
     /* Modal Backdrop */
@@ -185,7 +201,7 @@ import { OfflineQueueService } from '../../services/offline-queue.service';
       bottom: 0;
       width: 100%;
       height: 100%;
-      background: rgba(15, 23, 42, 0.82);
+      background: rgba(0, 0, 0, 0.85);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -194,80 +210,93 @@ import { OfflineQueueService } from '../../services/offline-queue.service';
     }
 
     .modal-card {
-      background: #ffffff;
-      border-radius: 16px;
-      padding: 20px;
+      background: #09090b;
+      border-radius: 12px;
+      padding: 24px;
       width: 100%;
       max-width: 400px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      color: #1e293b;
+      border: 1px solid #27272a;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9);
+      color: #f4f4f5;
     }
 
     .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
-      border-bottom: 1px solid #e2e8f0;
-      padding-bottom: 10px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #18181b;
+      padding-bottom: 12px;
     }
 
     .modal-header h3 {
       margin: 0;
-      font-size: 16px;
-      color: #0f172a;
+      font-size: 15px;
+      font-weight: 600;
+      color: #ffffff;
+      letter-spacing: -0.01em;
     }
 
     .btn-close {
       background: none;
       border: none;
-      font-size: 16px;
+      font-size: 14px;
       cursor: pointer;
-      color: #64748b;
+      color: #71717a;
+      transition: color 0.15s;
+    }
+
+    .btn-close:hover {
+      color: #ffffff;
     }
 
     .modal-body {
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
 
     .input-label {
       display: block;
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 6px;
-      color: #334155;
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #a1a1aa;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     .email-input {
       width: 100%;
-      padding: 10px;
-      border: 1px solid #cbd5e1;
+      padding: 10px 12px;
+      background-color: #121215;
+      border: 1px solid #27272a;
+      color: #ffffff;
       border-radius: 8px;
       font-size: 14px;
       box-sizing: border-box;
       outline: none;
+      transition: border-color 0.15s;
     }
 
     .email-input:focus {
-      border-color: #2563eb;
+      border-color: #52525b;
     }
 
     .input-help {
-      font-size: 11px;
-      color: #64748b;
-      margin: 6px 0 0 0;
+      font-size: 12px;
+      color: #71717a;
+      margin: 8px 0 0 0;
       line-height: 1.4;
     }
 
     .saved-alert {
-      margin-top: 10px;
-      background-color: #dcfce7;
-      color: #15803d;
-      border: 1px solid #86efac;
-      padding: 8px;
+      margin-top: 12px;
+      background-color: #052e16;
+      color: #4ade80;
+      border: 1px solid #166534;
+      padding: 8px 12px;
       border-radius: 6px;
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 500;
       text-align: center;
     }
 
@@ -278,31 +307,35 @@ import { OfflineQueueService } from '../../services/offline-queue.service';
 
     .btn-save {
       flex: 1;
-      padding: 10px;
-      background-color: #2563eb;
-      color: #ffffff;
+      padding: 10px 16px;
+      background-color: #ffffff;
+      color: #09090b;
       border: none;
       border-radius: 8px;
-      font-weight: 700;
+      font-weight: 600;
       font-size: 13px;
       cursor: pointer;
+      transition: background-color 0.15s;
+    }
+
+    .btn-save:hover {
+      background-color: #e4e4e7;
     }
 
     .btn-logout {
       padding: 10px 14px;
-      background-color: #f1f5f9;
-      color: #dc2626;
-      border: 1px solid #fca5a5;
+      background-color: #18181b;
+      color: #f87171;
+      border: 1px solid #27272a;
       border-radius: 8px;
-      font-weight: 600;
+      font-weight: 500;
       font-size: 12px;
       cursor: pointer;
+      transition: background 0.15s;
     }
 
-    @media (max-width: 480px) {
-      .logo-text .subhead {
-        display: none;
-      }
+    .btn-logout:hover {
+      background-color: #27272a;
     }
   `]
 })
@@ -330,7 +363,7 @@ export class HeaderComponent {
       this.savedSuccess.set(true);
       setTimeout(() => {
         this.closeConfigModal();
-      }, 1000);
+      }, 1200);
     }
   }
 

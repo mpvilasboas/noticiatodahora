@@ -6,6 +6,7 @@ import { LocationService } from '../../services/location.service';
 import { ReportService } from '../../services/report.service';
 import { OfflineQueueService } from '../../services/offline-queue.service';
 import { GeneratedReportResponse } from '../../models/report.model';
+import DOMPurify from 'dompurify';
 
 @Component({
   selector: 'app-report-form',
@@ -16,14 +17,14 @@ import { GeneratedReportResponse } from '../../models/report.model';
       
       <!-- Network Warning Banner when offline -->
       <div *ngIf="!offlineQueue.isOnline()" class="offline-banner">
-        ⚠️ <strong>Modo Offline Ativo:</strong> Suas mídias serão salvas com segurança no celular e enviadas automaticamente quando houver conexão.
+        <span>Modo Offline: Os arquivos serão armazenados e enviados quando reestabelecer conexão.</span>
       </div>
 
       <div class="form-card">
         
         <!-- SECTION 1: Audio Recording -->
         <div class="form-section">
-          <label class="section-title">Relato (Áudio)</label>
+          <label class="section-title">RELATO EM ÁUDIO</label>
           
           <div class="recorder-box">
             <!-- Recording Controls -->
@@ -34,14 +35,19 @@ import { GeneratedReportResponse } from '../../models/report.model';
                 [class.recording]="recorder.isRecording()"
                 (click)="toggleRecording()"
               >
-                <span class="mic-icon">{{ recorder.isRecording() ? '🔴' : '🎙️' }}</span>
+                <svg *ngIf="!recorder.isRecording()" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                  <line x1="12" y1="19" x2="12" y2="22"/>
+                </svg>
+                <span class="rec-dot" *ngIf="recorder.isRecording()"></span>
                 <span class="btn-text">
                   {{ recorder.isRecording() ? (recorder.isPaused() ? 'Continuar Gravação' : 'Pausar Gravação') : 'Iniciar Gravação de Áudio' }}
                 </span>
               </button>
 
               <div *ngIf="recorder.isRecording()" class="recording-timer">
-                ⏱️ {{ recorder.formatTime(recorder.recordingTimeSeconds()) }}
+                <span class="timer-value">{{ recorder.formatTime(recorder.recordingTimeSeconds()) }}</span>
                 <button type="button" class="btn-stop" (click)="recorder.stopRecording()">Concluir Áudio</button>
               </div>
             </div>
@@ -49,8 +55,8 @@ import { GeneratedReportResponse } from '../../models/report.model';
             <!-- Audio Preview Player -->
             <div *ngIf="recorder.audioUrl()" class="audio-preview">
               <div class="audio-info">
-                <span>✅ Áudio gravado ({{ recorder.formatTime(recorder.recordingTimeSeconds()) }})</span>
-                <button type="button" class="btn-clear" (click)="recorder.clearRecording()">❌ Gravador novamente</button>
+                <span>Áudio gravado ({{ recorder.formatTime(recorder.recordingTimeSeconds()) }})</span>
+                <button type="button" class="btn-clear" (click)="recorder.clearRecording()">Gravar novamente</button>
               </div>
               <audio [src]="recorder.audioUrl()" controls class="audio-player"></audio>
             </div>
@@ -59,7 +65,7 @@ import { GeneratedReportResponse } from '../../models/report.model';
 
         <!-- SECTION 2: Image Capture -->
         <div class="form-section">
-          <label class="section-title">Imagem (Opcional)</label>
+          <label class="section-title">FOTO DA OCORRÊNCIA</label>
           
           <div class="photo-box">
             <input 
@@ -72,7 +78,11 @@ import { GeneratedReportResponse } from '../../models/report.model';
             />
 
             <button type="button" class="btn-photo" (click)="fileInput.click()">
-              📷 {{ photoPreview() ? 'Trocar Foto Capturada' : 'Tirar Foto ou Escolher Imagem' }}
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+              <span>{{ photoPreview() ? 'Substituir Foto' : 'Adicionar Foto ou Imagem' }}</span>
             </button>
 
             <div *ngIf="photoPreview()" class="photo-preview-container">
@@ -84,35 +94,38 @@ import { GeneratedReportResponse } from '../../models/report.model';
 
         <!-- SECTION 3: Geolocation -->
         <div class="form-section">
-          <label class="section-title">Localização</label>
+          <label class="section-title">LOCALIZAÇÃO GPS</label>
           
           <div class="location-box">
             <div *ngIf="locationService.location().loading" class="loc-status">
-              🔄 Obtendo localização...
+              Obtendo coordenadas via GPS...
             </div>
 
             <div *ngIf="locationService.location().locationName" class="loc-success">
-              📍 {{ locationService.location().locationName }}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              <span>{{ locationService.location().locationName }}</span>
             </div>
 
             <div *ngIf="locationService.location().error" class="loc-error">
-              ⚠️ {{ locationService.location().error }}
+              {{ locationService.location().error }}
             </div>
 
             <button type="button" class="btn-location" (click)="locationService.fetchCurrentLocation()">
-              Atualizar localização
+              Atualizar Posição
             </button>
           </div>
         </div>
 
         <!-- 4. TEXT / NOTES -->
         <div class="form-section section-notes">
-          <label class="section-title">Informações Adicionais (Opcional)</label>
-          <p class="section-help">Insira aqui dados específicos que precisam constar no texto final: nomes completos das pessoas envolvidas, cargos, instituições ou detalhes essenciais.</p>
+          <label class="section-title">OBSERVAÇÕES E DETALHES</label>
           <textarea 
             class="notes-input" 
             [(ngModel)]="userNotes" 
-            placeholder="Ex: João da Silva (Diretor da Defesa Civil), 15 famílias afetadas, entrevista concedida às 14h..."
+            placeholder="Nomes completos, cargos, números ou detalhes essenciais..."
             rows="2"
           ></textarea>
         </div>
@@ -125,11 +138,11 @@ import { GeneratedReportResponse } from '../../models/report.model';
             [disabled]="isSubmitting() || (!recorder.audioBlob() && !userNotes)"
             (click)="submitReport()"
           >
-            <span *ngIf="!isSubmitting()">🚀 Enviar Notícia à Redação</span>
-            <span *ngIf="isSubmitting()">⏳ Processando com IA...</span>
+            <span *ngIf="!isSubmitting()">Enviar para Redação →</span>
+            <span *ngIf="isSubmitting()">Processando...</span>
           </button>
           <span class="submit-hint">
-            O relato será transcrito por IA e enviado direto ao sistema da redação em formato de matéria e roteiro de rádio.
+            Gerando matéria completa para portal web e boletim formatado para rádio.
           </span>
         </div>
 
@@ -138,32 +151,34 @@ import { GeneratedReportResponse } from '../../models/report.model';
       <!-- SUCCESS / RESULT OVERLAY -->
       <div *ngIf="resultReport()" class="result-modal-backdrop" (click)="resetForm()">
         <div class="result-modal" (click)="$event.stopPropagation()">
-          <div class="modal-icon">🎉</div>
-          <h3>Reportagem enviada</h3>
+          <div class="modal-status-tag">✓ ENVIADO COM SUCESSO</div>
+          <h3>Reportagem Processada</h3>
           <p class="modal-sub">
-            O material foi processado com sucesso e está salvo no banco de dados com status <strong>enviado_redacao</strong>.
+            O material foi gravado e enviado para a redação.
           </p>
 
           <div class="result-tabs" *ngIf="resultReport()?.report">
             <div class="result-card" *ngIf="getPortalArticle()">
-              <h4>📰 Matéria do site</h4>
+              <span class="card-tag">PORTAL WEB</span>
               <h5>{{ getPortalArticle()?.headline }}</h5>
-              <p *ngIf="getPortalArticle()?.lead"><strong>Lead:</strong> {{ getPortalArticle()?.lead }}</p>
+              <p *ngIf="getPortalArticle()?.lead" class="lead-text"><strong>Lead:</strong> {{ getPortalArticle()?.lead }}</p>
               <div class="markdown-preview">
                 <pre>{{ getPortalArticle()?.bodyMarkdown }}</pre>
               </div>
             </div>
 
             <div class="result-card radio" *ngIf="getRadioScript()">
-              <h4>📻 Roteiro para rádio</h4>
+              <div class="card-header-flex">
+                <span class="card-tag radio-tag">ROTEIRO RÁDIO</span>
+                <span class="duration">Leitura: ~{{ getRadioScript()?.durationEstimateSeconds || 40 }}s</span>
+              </div>
               <h5>{{ getRadioScript()?.title }}</h5>
               <p class="radio-body">{{ getRadioScript()?.broadcastScript }}</p>
-              <span class="duration">⏱️ Duração estimada: {{ getRadioScript()?.durationEstimateSeconds || 40 }}s</span>
             </div>
           </div>
 
           <button type="button" class="btn-close-modal" (click)="resetForm()">
-            + Enviar Nova Reportagem de Campo
+            + Criar Nova Reportagem
           </button>
         </div>
       </div>
@@ -171,13 +186,13 @@ import { GeneratedReportResponse } from '../../models/report.model';
       <!-- QUEUED SUCCESS OVERLAY -->
       <div *ngIf="queuedSuccessMessage()" class="result-modal-backdrop" (click)="resetForm()">
         <div class="result-modal" (click)="$event.stopPropagation()">
-          <div class="modal-icon">📥</div>
-          <h3>Reportagem Salva na Fila Offline!</h3>
+          <div class="modal-status-tag offline-tag">ARMAZENADO NA FILA</div>
+          <h3>Reportagem Salva Offline</h3>
           <p class="modal-sub">
-            Você está sem conexão no momento. Seu relato, fotos e coordenadas foram salvos com segurança no dispositivo e serão **enviados automaticamente** assim que o sinal for restabelecido.
+            Seu áudio e dados foram salvos no dispositivo e serão transmitidos automaticamente assim que a conexão retornar.
           </p>
           <button type="button" class="btn-close-modal" (click)="resetForm()">
-            Entendido (+ Nova Reportagem)
+            Concluído
           </button>
         </div>
       </div>
@@ -197,25 +212,26 @@ import { GeneratedReportResponse } from '../../models/report.model';
       justify-content: space-between;
       overflow-y: auto;
       box-sizing: border-box;
+      background-color: #09090b;
     }
 
     .offline-banner {
-      background-color: #fffbebfb;
-      border: 1px solid #f59e0b;
-      color: #92400e;
+      background-color: #271a0c;
+      border: 1px solid #b45309;
+      color: #fde047;
       padding: 8px 12px;
-      border-radius: 10px;
+      border-radius: 8px;
       font-size: 12px;
       margin-bottom: 8px;
       line-height: 1.4;
     }
 
     .form-card {
-      background: #ffffff;
-      border-radius: 16px;
+      background: #121215;
+      border-radius: 12px;
       padding: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      border: 1px solid #e2e8f0;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      border: 1px solid #27272a;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -235,65 +251,57 @@ import { GeneratedReportResponse } from '../../models/report.model';
 
     .section-title {
       display: block;
-      font-size: 15px;
-      font-weight: 700;
-      color: #0f172a;
+      font-size: 11px;
+      font-weight: 600;
+      color: #71717a;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       margin-bottom: 6px;
     }
 
-    .section-help {
-      font-size: 12px;
-      color: #475569;
-      margin: 0 0 8px 0;
-      line-height: 1.4;
-    }
-
-    .step-num {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 22px;
-      height: 22px;
-      background-color: #2563eb;
-      color: #ffffff;
-      border-radius: 50%;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
     .recorder-box, .photo-box, .location-box {
-      background-color: #f8fafc;
-      border: 1px dashed #cbd5e1;
-      border-radius: 12px;
+      background-color: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
       padding: 10px 12px;
     }
 
     .btn-record {
       width: 100%;
-      padding: 13px 14px;
+      padding: 12px 14px;
       background-color: #ef4444;
       color: #ffffff;
       border: none;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 700;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
       cursor: pointer;
-      box-shadow: 0 3px 10px rgba(239, 68, 68, 0.25);
-      transition: transform 0.1s, background-color 0.2s;
+      transition: background-color 0.15s;
+    }
+
+    .btn-record:hover {
+      background-color: #dc2626;
     }
 
     .btn-record.recording {
       background-color: #dc2626;
-      animation: pulse 1.5s infinite;
+    }
+
+    .rec-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #ffffff;
+      animation: pulse 1.2s infinite;
     }
 
     @keyframes pulse {
       0% { opacity: 1; }
-      50% { opacity: 0.8; }
+      50% { opacity: 0.3; }
       100% { opacity: 1; }
     }
 
@@ -302,16 +310,16 @@ import { GeneratedReportResponse } from '../../models/report.model';
       justify-content: space-between;
       align-items: center;
       margin-top: 8px;
-      font-size: 14px;
-      font-weight: 700;
-      color: #dc2626;
+      font-size: 13px;
+      font-weight: 600;
+      color: #ef4444;
     }
 
     .btn-stop {
-      background-color: #0f172a;
+      background-color: #27272a;
       color: #ffffff;
-      border: none;
-      padding: 5px 10px;
+      border: 1px solid #3f3f46;
+      padding: 4px 10px;
       border-radius: 6px;
       font-size: 12px;
       cursor: pointer;
@@ -327,14 +335,14 @@ import { GeneratedReportResponse } from '../../models/report.model';
       display: flex;
       justify-content: space-between;
       font-size: 12px;
-      font-weight: 600;
-      color: #059669;
+      font-weight: 500;
+      color: #4ade80;
     }
 
     .btn-clear {
       background: none;
       border: none;
-      color: #ef4444;
+      color: #f87171;
       font-size: 12px;
       cursor: pointer;
     }
@@ -342,18 +350,28 @@ import { GeneratedReportResponse } from '../../models/report.model';
     .audio-player {
       width: 100%;
       height: 38px;
+      filter: invert(0.9) hue-rotate(180deg);
     }
 
     .btn-photo, .btn-location {
       width: 100%;
-      padding: 11px 12px;
-      background-color: #ffffff;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
+      padding: 10px 12px;
+      background-color: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 6px;
       font-size: 13px;
-      font-weight: 600;
-      color: #334155;
+      font-weight: 500;
+      color: #e4e4e7;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       cursor: pointer;
+      transition: background-color 0.15s;
+    }
+
+    .btn-photo:hover, .btn-location:hover {
+      background-color: #27272a;
     }
 
     .photo-preview-container {
@@ -365,16 +383,17 @@ import { GeneratedReportResponse } from '../../models/report.model';
       width: 100%;
       max-height: 90px;
       object-fit: cover;
-      border-radius: 8px;
+      border-radius: 6px;
+      border: 1px solid #27272a;
     }
 
     .btn-remove-photo {
       position: absolute;
       top: 6px;
       right: 6px;
-      background: rgba(0,0,0,0.75);
+      background: rgba(0,0,0,0.85);
       color: #fff;
-      border: none;
+      border: 1px solid #3f3f46;
       padding: 4px 8px;
       border-radius: 4px;
       font-size: 11px;
@@ -387,22 +406,38 @@ import { GeneratedReportResponse } from '../../models/report.model';
       font-weight: 500;
     }
 
-    .loc-success { color: #059669; font-weight: 600; }
-    .loc-error { color: #dc2626; }
+    .loc-success {
+      color: #4ade80;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .loc-error { color: #f87171; }
 
     .notes-input {
       width: 100%;
       flex: 1;
       min-height: 70px;
       padding: 10px 12px;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      font-size: 14px;
+      background-color: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      font-size: 13px;
       line-height: 1.45;
-      color: #1e293b;
+      color: #ffffff;
       box-sizing: border-box;
       outline: none;
       resize: none;
+      transition: border-color 0.15s;
+    }
+
+    .notes-input::placeholder {
+      color: #71717a;
+    }
+
+    .notes-input:focus {
+      border-color: #52525b;
     }
 
     .submit-section {
@@ -411,24 +446,25 @@ import { GeneratedReportResponse } from '../../models/report.model';
 
     .btn-submit-report {
       width: 100%;
-      padding: 15px;
-      background-color: #10b981;
-      color: #ffffff;
+      padding: 13px;
+      background-color: #ffffff;
+      color: #09090b;
       border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 700;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.28);
-      transition: background-color 0.2s;
+      box-shadow: 0 4px 14px rgba(255, 255, 255, 0.12);
+      transition: background-color 0.15s;
     }
 
     .btn-submit-report:hover {
-      background-color: #059669;
+      background-color: #e4e4e7;
     }
 
     .btn-submit-report:disabled {
-      background-color: #94a3b8;
+      background-color: #27272a;
+      color: #71717a;
       box-shadow: none;
       cursor: not-allowed;
     }
@@ -437,7 +473,7 @@ import { GeneratedReportResponse } from '../../models/report.model';
       display: block;
       text-align: center;
       font-size: 11px;
-      color: #64748b;
+      color: #71717a;
       margin-top: 6px;
     }
 
@@ -446,10 +482,11 @@ import { GeneratedReportResponse } from '../../models/report.model';
       position: fixed;
       top: 0;
       left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: rgba(15, 23, 42, 0.75);
-      backdrop-filter: blur(4px);
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.85);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -458,39 +495,94 @@ import { GeneratedReportResponse } from '../../models/report.model';
     }
 
     .result-modal {
-      background: #ffffff;
-      border-radius: 20px;
+      background: #09090b;
+      border-radius: 12px;
       padding: 24px;
       width: 100%;
       max-width: 500px;
       max-height: 85vh;
       overflow-y: auto;
-      text-align: center;
+      text-align: left;
+      border: 1px solid #27272a;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9);
+      color: #f4f4f5;
     }
 
-    .modal-icon { font-size: 40px; margin-bottom: 8px; }
-    .result-modal h3 { margin: 0 0 8px 0; color: #0f172a; font-size: 20px; }
-    .modal-sub { font-size: 13px; color: #64748b; margin-bottom: 20px; }
+    .modal-status-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: #4ade80;
+      background-color: #052e16;
+      border: 1px solid #166534;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+
+    .offline-tag {
+      color: #fde047;
+      background-color: #271a0c;
+      border-color: #b45309;
+    }
+
+    .result-modal h3 { margin: 0 0 6px 0; color: #ffffff; font-size: 18px; font-weight: 600; }
+    .modal-sub { font-size: 13px; color: #a1a1aa; margin-bottom: 20px; line-height: 1.4; }
 
     .result-tabs { text-align: left; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
-    .result-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; }
-    .result-card.radio { background: #eff6ff; border-color: #bfdbfe; }
-    .result-card h4 { margin: 0 0 6px 0; font-size: 14px; color: #2563eb; }
-    .result-card h5 { margin: 0 0 6px 0; font-size: 15px; color: #0f172a; }
-    .result-card p { font-size: 13px; margin: 0 0 8px 0; color: #334155; }
-    .markdown-preview pre { font-size: 11px; white-space: pre-wrap; background: #ffffff; padding: 8px; border-radius: 6px; }
-    .duration { font-size: 11px; font-weight: 600; color: #1d4ed8; }
+    
+    .result-card { background: #121215; border: 1px solid #27272a; border-radius: 8px; padding: 14px; }
+    .result-card.radio { background: #0c192c; border-color: #1e3a8a; }
+
+    .card-header-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .card-tag {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: #a1a1aa;
+    }
+
+    .radio-tag { color: #38bdf8; }
+
+    .result-card h5 { margin: 0 0 8px 0; font-size: 15px; font-weight: 600; color: #ffffff; }
+    .lead-text { font-size: 13px; margin: 0 0 10px 0; color: #d4d4d8; line-height: 1.45; }
+    
+    .markdown-preview pre {
+      font-size: 12px;
+      white-space: pre-wrap;
+      background: #09090b;
+      color: #e4e4e7;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #27272a;
+      margin: 0;
+    }
+
+    .duration { font-size: 11px; font-weight: 500; color: #38bdf8; }
+    .radio-body { font-size: 13px; color: #e4e4e7; line-height: 1.5; margin: 0; }
 
     .btn-close-modal {
       width: 100%;
-      padding: 14px;
-      background-color: #0f172a;
-      color: #fff;
+      padding: 12px;
+      background-color: #ffffff;
+      color: #09090b;
       border: none;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13px;
       cursor: pointer;
+      transition: background-color 0.15s;
+    }
+
+    .btn-close-modal:hover {
+      background-color: #e4e4e7;
     }
   `]
 })
@@ -509,7 +601,6 @@ export class ReportFormComponent implements OnInit {
   queuedSuccessMessage = signal<boolean>(false);
 
   ngOnInit(): void {
-    // Automatically fetch GPS when component loads
     this.locationService.fetchCurrentLocation();
   }
 
@@ -523,13 +614,15 @@ export class ReportFormComponent implements OnInit {
     }
   }
 
-  onPhotoSelected(event: any): void {
-    const file = event.target.files?.[0];
-    if (file) {
+  onPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
       this.photoFile = file;
+
       const reader = new FileReader();
-      reader.onload = () => {
-        this.photoPreview.set(reader.result as string);
+      reader.onload = (e) => {
+        this.photoPreview.set(e.target?.result as string);
       };
       reader.readAsDataURL(file);
     }
@@ -540,38 +633,59 @@ export class ReportFormComponent implements OnInit {
     this.photoPreview.set(null);
   }
 
-  getPortalArticle() {
-    const rep = this.resultReport()?.report as any;
-    return rep?.portalArticle || rep?.portal_article || null;
-  }
-
-  getRadioScript() {
-    const rep = this.resultReport()?.report as any;
-    return rep?.radioScript || rep?.radio_script || null;
-  }
-
   async submitReport(): Promise<void> {
-    if (!this.recorder.audioBlob() && !this.userNotes) return;
+    const audioBlob = this.recorder.audioBlob();
+    if (!audioBlob && !this.userNotes.trim()) {
+      alert('Por favor, grave um relato de áudio ou digite algumas observações antes de enviar.');
+      return;
+    }
 
     this.isSubmitting.set(true);
 
-    try {
-      const response = await this.reportService.submitReport(
-        this.recorder.audioBlob(),
-        this.photoFile,
-        this.locationService.location().latitude,
-        this.locationService.location().longitude,
-        this.userNotes,
-        this.locationService.location().locationName
-      );
+    const lat = this.locationService.location().latitude;
+    const lng = this.locationService.location().longitude;
+    const locationName = this.locationService.location().locationName;
 
-      if ('queued' in response && response.queued) {
+    try {
+      if (!this.offlineQueue.isOnline()) {
+        await this.offlineQueue.enqueueReport({
+          audioBlob: audioBlob || undefined,
+          photoBlob: this.photoFile || undefined,
+          latitude: lat || undefined,
+          longitude: lng || undefined,
+          userNotes: this.userNotes.trim() || undefined
+        });
         this.queuedSuccessMessage.set(true);
-      } else if ('report' in response) {
-        this.resultReport.set(response as GeneratedReportResponse);
+      } else {
+        const response = await this.reportService.submitReport(
+          audioBlob,
+          this.photoFile,
+          lat,
+          lng,
+          this.userNotes.trim() || undefined,
+          locationName
+        );
+
+        if ('queued' in response && response.queued) {
+          this.queuedSuccessMessage.set(true);
+        } else {
+          this.resultReport.set(response as GeneratedReportResponse);
+        }
       }
     } catch (err: any) {
-      alert(`Falha ao enviar reportagem: ${err?.message || err}`);
+      console.error('Erro no envio, salvando na fila offline:', err);
+      try {
+        await this.offlineQueue.enqueueReport({
+          audioBlob: audioBlob || undefined,
+          photoBlob: this.photoFile || undefined,
+          latitude: lat || undefined,
+          longitude: lng || undefined,
+          userNotes: this.userNotes.trim() || undefined
+        });
+        this.queuedSuccessMessage.set(true);
+      } catch (queueErr) {
+        alert('Erro ao processar e salvar a notícia. Verifique as permissões de mídia.');
+      }
     } finally {
       this.isSubmitting.set(false);
     }
@@ -583,6 +697,29 @@ export class ReportFormComponent implements OnInit {
     this.userNotes = '';
     this.resultReport.set(null);
     this.queuedSuccessMessage.set(false);
-    this.locationService.fetchCurrentLocation();
+  }
+
+  getPortalArticle() {
+    const report = this.resultReport()?.report;
+    if (!report || !report.portal_article) return null;
+    const article = report.portal_article;
+    return {
+      headline: DOMPurify.sanitize(article.headline),
+      lead: DOMPurify.sanitize(article.lead),
+      bodyMarkdown: DOMPurify.sanitize(article.bodyMarkdown),
+      photoCaption: article.photoCaption ? DOMPurify.sanitize(article.photoCaption) : '',
+      tags: article.tags ? article.tags.map(t => DOMPurify.sanitize(t)) : []
+    };
+  }
+
+  getRadioScript() {
+    const report = this.resultReport()?.report;
+    if (!report || !report.radio_script) return null;
+    const script = report.radio_script;
+    return {
+      title: DOMPurify.sanitize(script.title),
+      broadcastScript: DOMPurify.sanitize(script.broadcastScript),
+      durationEstimateSeconds: script.durationEstimateSeconds
+    };
   }
 }
