@@ -1,26 +1,16 @@
 {
   "version": 2,
-  "builds": [
+  "framework": null,
+  "buildCommand": "npm run build",
+  "outputDirectory": "public",
+  "rewrites": [
     {
-      "src": "apps/frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist/frontend/browser"
-      }
+      "source": "/api/(.*)",
+      "destination": "/api"
     },
     {
-      "src": "api/index.ts",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "api/index.ts"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "apps/frontend/$1"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
