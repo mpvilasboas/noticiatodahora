@@ -16,11 +16,11 @@ const publicDir = path.join(rootDir, 'public');
 
 // 1. Build backend TypeScript
 console.log('📦 [1/3] Compilando Backend TypeScript...');
-execSync('npx tsc', { cwd: backendDir, stdio: 'inherit' });
+execSync('npm run build', { cwd: backendDir, stdio: 'inherit' });
 
 // 2. Build frontend Angular PWA
 console.log('🎨 [2/3] Compilando Frontend Angular PWA...');
-execSync('npx ng build --configuration production', { cwd: frontendDir, stdio: 'inherit' });
+execSync('npm run build', { cwd: frontendDir, stdio: 'inherit' });
 
 // 3. Copy frontend dist to root public
 console.log('📂 [3/3] Copiando bundle para a pasta public...');
