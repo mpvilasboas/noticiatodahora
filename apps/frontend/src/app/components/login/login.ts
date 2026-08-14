@@ -11,9 +11,9 @@ import { AuthService } from '../../services/auth.service';
     <div class="login-container">
       <div class="login-card">
         <div class="login-header">
-          <span class="icon">🎙️</span>
-          <h2>Acesso do Jornalista</h2>
-          <p>Digite suas credenciais da redação para entrar no sistema de campo.</p>
+          <div class="brand-badge">NT</div>
+          <h2>Acesso do Repórter</h2>
+          <p>Informe suas credenciais da redação para acessar o sistema de campo.</p>
         </div>
 
         <form (ngSubmit)="onSubmit()" class="login-form">
@@ -25,13 +25,13 @@ import { AuthService } from '../../services/auth.service';
               [(ngModel)]="email" 
               name="email" 
               required 
-              placeholder="seu.nome@noticiatodahora.com"
+              placeholder="repórter@noticiatodahora.com.br"
               class="form-control"
             />
           </div>
 
           <div class="form-group">
-            <label for="password">Senha da Redação</label>
+            <label for="password">Senha</label>
             <input 
               type="password" 
               id="password" 
@@ -44,8 +44,8 @@ import { AuthService } from '../../services/auth.service';
           </div>
 
           <button type="submit" class="btn-submit" [disabled]="loading">
-            <span *ngIf="!loading">Entrar no Sistema</span>
-            <span *ngIf="loading">Entrando...</span>
+            <span *ngIf="!loading">Entrar no Sistema →</span>
+            <span *ngIf="loading">Autenticando...</span>
           </button>
         </form>
       </div>
@@ -56,93 +56,113 @@ import { AuthService } from '../../services/auth.service';
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: calc(100vh - 70px);
+      height: calc(100dvh - 52px);
       padding: 20px;
-      background-color: #f8fafc;
+      background-color: #09090b;
+      box-sizing: border-box;
     }
 
     .login-card {
       width: 100%;
       max-width: 380px;
-      background: #ffffff;
-      padding: 28px 24px;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.01);
-      border: 1px solid #e2e8f0;
+      background: #121215;
+      padding: 32px 28px;
+      border-radius: 12px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9);
+      border: 1px solid #27272a;
     }
 
     .login-header {
       text-align: center;
-      margin-bottom: 24px;
+      margin-bottom: 28px;
     }
 
-    .login-header .icon {
-      font-size: 36px;
-      display: inline-block;
-      margin-bottom: 8px;
+    .brand-badge {
+      width: 36px;
+      height: 36px;
+      background-color: #ffffff;
+      color: #09090b;
+      font-size: 13px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
     }
 
     .login-header h2 {
-      font-size: 20px;
-      font-weight: 700;
-      color: #0f172a;
+      font-size: 18px;
+      font-weight: 600;
+      color: #ffffff;
       margin: 0 0 6px 0;
+      letter-spacing: -0.01em;
     }
 
     .login-header p {
-      font-size: 13px;
-      color: #64748b;
+      font-size: 12px;
+      color: #71717a;
       margin: 0;
+      line-height: 1.4;
     }
 
     .form-group {
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     .form-group label {
       display: block;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
-      color: #334155;
-      margin-bottom: 6px;
+      color: #71717a;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
     }
 
     .form-control {
       width: 100%;
-      padding: 12px;
-      border: 1px solid #cbd5e1;
+      padding: 10px 12px;
+      background-color: #18181b;
+      border: 1px solid #27272a;
       border-radius: 8px;
-      font-size: 14px;
+      font-size: 13px;
+      color: #ffffff;
       outline: none;
       box-sizing: border-box;
-      transition: border-color 0.2s;
+      transition: border-color 0.15s;
+    }
+
+    .form-control::placeholder {
+      color: #71717a;
     }
 
     .form-control:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+      border-color: #52525b;
     }
 
     .btn-submit {
       width: 100%;
-      padding: 14px;
-      background-color: #2563eb;
-      color: #ffffff;
+      padding: 12px;
+      background-color: #ffffff;
+      color: #09090b;
       border: none;
       border-radius: 8px;
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       margin-top: 8px;
-      transition: background-color 0.2s;
+      transition: background-color 0.15s;
     }
 
     .btn-submit:hover {
-      background-color: #1d4ed8;
+      background-color: #e4e4e7;
     }
 
     .btn-submit:disabled {
-      background-color: #94a3b8;
+      background-color: #27272a;
+      color: #71717a;
       cursor: not-allowed;
     }
   `]
